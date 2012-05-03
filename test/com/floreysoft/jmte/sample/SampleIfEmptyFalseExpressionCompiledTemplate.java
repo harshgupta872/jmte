@@ -9,6 +9,7 @@ import com.floreysoft.jmte.TemplateContext;
 import com.floreysoft.jmte.template.AbstractCompiledTemplate;
 import com.floreysoft.jmte.token.IfToken;
 import com.floreysoft.jmte.token.StringToken;
+import com.floreysoft.jmte.util.RuntimeExAppendable;
 
 // ${if !bean.trueCond}${address}${else}NIX${end}
 public class SampleIfEmptyFalseExpressionCompiledTemplate extends
@@ -26,8 +27,8 @@ public class SampleIfEmptyFalseExpressionCompiledTemplate extends
 	}
 
 	@Override
-	protected String transformCompiled(TemplateContext context) {
-		StringBuilder buffer = new StringBuilder();
+	protected Appendable transformCompiled(Appendable out,TemplateContext context) {
+		RuntimeExAppendable buffer = new RuntimeExAppendable(out);
 
 		IfToken token1 = new IfToken(Arrays.asList(new String[] { "bean",
 				"trueCond" }), "bean.trueCond", true);
@@ -43,7 +44,7 @@ public class SampleIfEmptyFalseExpressionCompiledTemplate extends
 		} finally {
 			context.pop();
 		}
-		return buffer.toString();
+		return buffer;
 	}
 
 }

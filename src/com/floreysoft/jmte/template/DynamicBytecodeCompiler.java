@@ -28,6 +28,8 @@ import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_6;
 
+// needed only when class Dump enabled
+//import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.LinkedList;
 import java.util.List;
@@ -38,6 +40,9 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+// needed only when class dump enabled
+//import org.objectweb.asm.util.CheckClassAdapter;
+//import org.objectweb.asm.util.TraceClassVisitor;
 
 import com.floreysoft.jmte.Engine;
 import com.floreysoft.jmte.token.AnnotationToken;
@@ -94,9 +99,11 @@ public class DynamicBytecodeCompiler implements TemplateCompiler {
 	private final static String COMPILED_TEMPLATE_NAME_PREFIX = "com/floreysoft/jmte/template/CompiledTemplate";
 
 	private final static int THIS = 0;
-	private final static int CONTEXT = 1;
-	private final static int BUFFER = 2;
-	private final static int EXCEPTION = 3;
+	private final static int OUT_PARAM = 1;
+	private final static int CONTEXT = 2;
+	
+	private final static int BUFFER = 3;
+	private final static int EXCEPTION = 4;
 	private final static int HIGHEST = EXCEPTION;
 
 	// all the compiled classes live as long as this class loader lives
@@ -136,7 +143,7 @@ public class DynamicBytecodeCompiler implements TemplateCompiler {
 		// TraceClassVisitor traceClassVisitor = new TraceClassVisitor(
 		// classWriter, new PrintWriter(writer));
 		// classVisitor = new CheckClassAdapter(traceClassVisitor);
-		// classVisitor = traceClassVisitor;
+		//classVisitor = traceClassVisitor;
 		classVisitor = classWriter;
 	}
 
@@ -272,7 +279,7 @@ public class DynamicBytecodeCompiler implements TemplateCompiler {
 		classVisitor.visitEnd();
 
 		// FIXME: Only for debugging
-		// System.out.println(writer.toString());
+		// System.out.println("WOW!"+writer.toString());
 		byte[] byteArray = classWriter.toByteArray();
 		Class<?> myClass = loadClass(byteArray);
 		try {
@@ -325,21 +332,24 @@ public class DynamicBytecodeCompiler implements TemplateCompiler {
 	}
 
 	// StringBuilder buffer = new StringBuilder();
+	// RuntimeExWrapper buffer = new RuntimeExWrapper(arg)
 	private void createStringBuilder() {
 
-		mv.visitTypeInsn(NEW, "java/lang/StringBuilder");
+		mv.visitTypeInsn(NEW, "com/floreysoft/jmte/util/RuntimeExAppendable");
 		mv.visitInsn(DUP);
-		mv.visitMethodInsn(INVOKESPECIAL, "java/lang/StringBuilder", "<init>",
-				"()V");
+		mv.visitVarInsn(ALOAD, OUT_PARAM);
+		mv.visitMethodInsn(INVOKESPECIAL, "com/floreysoft/jmte/util/RuntimeExAppendable", "<init>",
+				"(Ljava/lang/Appendable;)V");
 		mv.visitVarInsn(ASTORE, BUFFER);
+
 	}
 
-	// return buffer.toString();
+	// return buffer;
 
 	private void returnStringBuilder() {
 		mv.visitVarInsn(ALOAD, BUFFER);
-		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder",
-				"toString", "()Ljava/lang/String;");
+//		mv.visitMethodInsn(INVOKEVIRTUAL, "com/floreysoft/jmte/util/RuntimeExAppendable",
+//				"toString", "()Ljava/lang/String;");
 		mv.visitInsn(ARETURN);
 	}
 
@@ -359,7 +369,7 @@ public class DynamicBytecodeCompiler implements TemplateCompiler {
 		createCtor();
 
 		mv = classVisitor.visitMethod(ACC_PROTECTED, "transformCompiled",
-				"(Lcom/floreysoft/jmte/TemplateContext;)Ljava/lang/String;",
+				"(Ljava/lang/Appendable;Lcom/floreysoft/jmte/TemplateContext;)Ljava/lang/Appendable;",
 				null, null);
 
 		mv.visitCode();
@@ -384,8 +394,8 @@ public class DynamicBytecodeCompiler implements TemplateCompiler {
 				"(Lcom/floreysoft/jmte/TemplateContext;)Ljava/lang/Object;");
 		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "toString",
 				"()Ljava/lang/String;");
-		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append",
-				"(Ljava/lang/String;)Ljava/lang/StringBuilder;");
+		mv.visitMethodInsn(INVOKEVIRTUAL, "com/floreysoft/jmte/util/RuntimeExAppendable", "append",
+				"(Ljava/lang/CharSequence;)Ljava/lang/Appendable;");
 		mv.visitInsn(POP);
 
 	}
@@ -416,8 +426,8 @@ public class DynamicBytecodeCompiler implements TemplateCompiler {
 				"(Lcom/floreysoft/jmte/TemplateContext;)Ljava/lang/Object;");
 		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "toString",
 				"()Ljava/lang/String;");
-		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append",
-				"(Ljava/lang/String;)Ljava/lang/StringBuilder;");
+		mv.visitMethodInsn(INVOKEVIRTUAL, "com/floreysoft/jmte/util/RuntimeExAppendable", "append",
+				"(Ljava/lang/CharSequence;)Ljava/lang/Appendable;");
 		mv.visitInsn(POP);
 
 	}
@@ -425,8 +435,8 @@ public class DynamicBytecodeCompiler implements TemplateCompiler {
 	private void codeGenerateText(String text) {
 		mv.visitVarInsn(ALOAD, BUFFER);
 		pushConstant(text);
-		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append",
-				"(Ljava/lang/String;)Ljava/lang/StringBuilder;");
+		mv.visitMethodInsn(INVOKEVIRTUAL, "com/floreysoft/jmte/util/RuntimeExAppendable", "append",
+				"(Ljava/lang/CharSequence;)Ljava/lang/Appendable;");
 		mv.visitInsn(POP);
 	}
 
@@ -588,8 +598,8 @@ public class DynamicBytecodeCompiler implements TemplateCompiler {
 		mv.visitMethodInsn(INVOKEVIRTUAL,
 				"com/floreysoft/jmte/token/ForEachToken", "getSeparator",
 				"()Ljava/lang/String;");
-		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append",
-				"(Ljava/lang/String;)Ljava/lang/StringBuilder;");
+		mv.visitMethodInsn(INVOKEVIRTUAL, "com/floreysoft/jmte/util/RuntimeExAppendable", "append",
+				"(Ljava/lang/CharSequence;)Ljava/lang/Appendable;");
 		mv.visitInsn(POP);
 
 		// while (token1.iterator().hasNext()) {

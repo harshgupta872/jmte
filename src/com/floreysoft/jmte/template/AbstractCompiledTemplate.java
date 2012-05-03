@@ -9,6 +9,7 @@ import com.floreysoft.jmte.ModelAdaptor;
 import com.floreysoft.jmte.ProcessListener;
 import com.floreysoft.jmte.ScopedMap;
 import com.floreysoft.jmte.TemplateContext;
+import com.floreysoft.jmte.util.RuntimeExAppendable;
 import com.floreysoft.jmte.util.Util;
 
 public abstract class AbstractCompiledTemplate extends AbstractTemplate {
@@ -26,16 +27,14 @@ public abstract class AbstractCompiledTemplate extends AbstractTemplate {
 	}
 
 	@Override
-	public synchronized String transform(Map<String, Object> model, Locale locale, ModelAdaptor modelAdaptor, ProcessListener processListener) {
+	public synchronized Appendable transformAppendable(Appendable out,Map<String, Object> model, Locale locale, ModelAdaptor modelAdaptor, ProcessListener processListener) {
 		TemplateContext context = new TemplateContext(template, locale, sourceName,
 				new ScopedMap(model), modelAdaptor, engine, engine.getErrorHandler(), processListener);
-
-		String transformed = transformCompiled(context);
-		return transformed;
+		return transformCompiled(out,context);
 
 	}
 
-	protected abstract String transformCompiled(TemplateContext context);
+	protected abstract Appendable transformCompiled(Appendable out,TemplateContext context);
 
 	public void setEngine(Engine engine) {
 		this.engine = engine;

@@ -9,6 +9,7 @@ import com.floreysoft.jmte.TemplateContext;
 import com.floreysoft.jmte.template.AbstractCompiledTemplate;
 import com.floreysoft.jmte.token.ForEachToken;
 import com.floreysoft.jmte.token.StringToken;
+import com.floreysoft.jmte.util.RuntimeExAppendable;
 
 // ${ foreach list item \n}${item.property1}${end}
 public class SampleNewlineForeachSeparatorCompiledTemplate extends
@@ -27,8 +28,8 @@ public class SampleNewlineForeachSeparatorCompiledTemplate extends
 
 	@Override
 	@SuppressWarnings("unchecked")
-	protected String transformCompiled(TemplateContext context) {
-		StringBuilder buffer = new StringBuilder();
+	protected Appendable transformCompiled(Appendable out,TemplateContext context) {
+		RuntimeExAppendable buffer = new RuntimeExAppendable(out);
 
 		ForEachToken token1 = new ForEachToken(Arrays
 				.asList(new String[] { "list" }), "list", "item", "\n");
@@ -53,7 +54,7 @@ public class SampleNewlineForeachSeparatorCompiledTemplate extends
 			context.model.exitScope();
 			context.pop();
 		}
-		return buffer.toString();
+		return buffer;
 	}
 
 }

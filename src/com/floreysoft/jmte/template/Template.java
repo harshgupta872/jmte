@@ -11,6 +11,22 @@ public interface Template {
 	/**
 	 * Transforms a template into an expanded output using the given model.
 	 * 
+	 * @param out
+	 *           any appendable output (StringBuffer, StringWriter, Writer....)
+	 *           @see java.lang.Appendable
+	 * @param model
+	 *            the model used to evaluate expressions inside the template
+	 * @param modelAdaptor
+	 *            adaptor used for this transformation to look up values from
+	 *            model
+	 * @return the expanded output
+	 */
+	public Appendable transformAppendable(Appendable out,Map<String, Object> model, Locale locale,
+			ModelAdaptor modelAdaptor, ProcessListener processListener);
+	
+	/**
+	 * Transforms a template into an expanded output using the given model.
+	 * 
 	 * @param model
 	 *            the model used to evaluate expressions inside the template
 	 * @param locale

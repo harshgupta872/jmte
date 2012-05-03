@@ -9,6 +9,7 @@ import com.floreysoft.jmte.TemplateContext;
 import com.floreysoft.jmte.template.AbstractCompiledTemplate;
 import com.floreysoft.jmte.token.IfCmpToken;
 import com.floreysoft.jmte.token.StringToken;
+import com.floreysoft.jmte.util.RuntimeExAppendable;
 
 // ${if address='Fillbert'}${address}${else}NIX${end}
 public class SampleIfCmpCompiledTemplate extends AbstractCompiledTemplate {
@@ -25,8 +26,8 @@ public class SampleIfCmpCompiledTemplate extends AbstractCompiledTemplate {
 	}
 
 	@Override
-	protected String transformCompiled(TemplateContext context) {
-		StringBuilder buffer = new StringBuilder();
+	protected Appendable transformCompiled(Appendable out,TemplateContext context) {
+		RuntimeExAppendable buffer = new RuntimeExAppendable(out);
 
 		IfCmpToken token1 = new IfCmpToken(Arrays
 				.asList(new String[] { "address" }), "address", "Filbert",
@@ -43,7 +44,7 @@ public class SampleIfCmpCompiledTemplate extends AbstractCompiledTemplate {
 		} finally {
 			context.pop();
 		}
-		return buffer.toString();
+		return buffer;
 	}
 
 }
