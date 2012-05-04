@@ -23,11 +23,12 @@ import com.floreysoft.jmte.token.PlainTextToken;
 import com.floreysoft.jmte.token.StringToken;
 import com.floreysoft.jmte.token.Token;
 import com.floreysoft.jmte.token.TokenStream;
+import com.floreysoft.jmte.util.RuntimeExAppendable;
 
 public class InterpretedTemplate extends AbstractTemplate {
 
 	protected final TokenStream tokenStream;
-	protected transient StringBuilder output;
+	protected transient RuntimeExAppendable output;
 	protected transient TemplateContext context;
 
 	public InterpretedTemplate(String template, String sourceName, Engine engine) {
@@ -82,35 +83,33 @@ public class InterpretedTemplate extends AbstractTemplate {
 		final Locale locale = Locale.getDefault();
 		context = new TemplateContext(template, locale, sourceName, scopedMap,
 				new DefaultModelAdaptor(), engine, engine.getErrorHandler(), processListener);
-
+		output = new RuntimeExAppendable(new StringBuilder());
 		transformPure(context);
+		output = null;
 		return usedVariables;
 	}
 
 	@Override
-	public synchronized String transform(Map<String, Object> model, Locale locale,
+	public synchronized Appendable transformAppendable(Appendable out,Map<String, Object> model, Locale locale,
 			ModelAdaptor modelAdaptor, ProcessListener processListener) {
 		try {
 			context = new TemplateContext(template, locale, sourceName, new ScopedMap(
 					model), modelAdaptor, engine, engine.getErrorHandler(), processListener);
-			String transformed = transformPure(context);
-			return transformed;
+			output = new RuntimeExAppendable(out);
+			transformPure(context);
+			return out; // out is same instance as output
 		} finally {
 			context = null;
 			output = null;
 		}
 	}
 
-	protected String transformPure(TemplateContext context) {
+	protected void transformPure(TemplateContext context) {
 		tokenStream.reset();
-		output = new StringBuilder(
-				(int) (context.template.length() * context.engine
-						.getExpansionSizeFactor()));
 		tokenStream.nextToken();
 		while (tokenStream.currentToken() != null) {
 			content(false);
 		}
-		return output.toString();
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

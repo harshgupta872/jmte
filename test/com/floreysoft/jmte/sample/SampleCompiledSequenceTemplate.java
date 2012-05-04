@@ -7,6 +7,7 @@ import com.floreysoft.jmte.Engine;
 import com.floreysoft.jmte.TemplateContext;
 import com.floreysoft.jmte.template.AbstractCompiledTemplate;
 import com.floreysoft.jmte.token.StringToken;
+import com.floreysoft.jmte.util.RuntimeExAppendable;
 
 public class SampleCompiledSequenceTemplate extends AbstractCompiledTemplate {
 
@@ -22,9 +23,9 @@ public class SampleCompiledSequenceTemplate extends AbstractCompiledTemplate {
 	}
 
 	@Override
-	protected String transformCompiled(TemplateContext context) {
-		StringBuilder buffer = new StringBuilder();
+	protected Appendable transformCompiled(Appendable out,TemplateContext context) {
 
+		RuntimeExAppendable buffer = new RuntimeExAppendable(out);
 		buffer.append("PREFIX");
 
 		buffer.append(new StringToken("address", "address", "NIX", "<h1>",
@@ -32,7 +33,7 @@ public class SampleCompiledSequenceTemplate extends AbstractCompiledTemplate {
 
 		buffer.append("SUFFIX");
 
-		return buffer.toString();
+		return buffer;
 	}
 
 }

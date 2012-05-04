@@ -6,6 +6,7 @@ import com.floreysoft.jmte.Engine;
 import com.floreysoft.jmte.TemplateContext;
 import com.floreysoft.jmte.template.AbstractCompiledTemplate;
 import com.floreysoft.jmte.token.StringToken;
+import com.floreysoft.jmte.util.RuntimeExAppendable;
 
 // ${address}
 public class SampleSimpleExpressionCompiledTemplate extends
@@ -21,13 +22,13 @@ public class SampleSimpleExpressionCompiledTemplate extends
 	}
 
 	@Override
-	protected String transformCompiled(TemplateContext context) {
-		StringBuilder buffer = new StringBuilder();
+	protected Appendable transformCompiled(Appendable out,TemplateContext context) {
+		RuntimeExAppendable buffer = new RuntimeExAppendable(out);
 
 		buffer.append(new StringToken("address", "address", null, null, null,
 				null, null).evaluate(context));
 
-		return buffer.toString();
+		return buffer;
 	}
 
 }

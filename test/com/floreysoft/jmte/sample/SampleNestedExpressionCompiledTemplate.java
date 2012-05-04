@@ -9,6 +9,7 @@ import com.floreysoft.jmte.template.AbstractCompiledTemplate;
 import com.floreysoft.jmte.token.ForEachToken;
 import com.floreysoft.jmte.token.IfToken;
 import com.floreysoft.jmte.token.StringToken;
+import com.floreysoft.jmte.util.RuntimeExAppendable;
 
 // ${foreach list item}${foreach item.list item2}OUTER_PRFIX${if item}${item2.property1}INNER_SUFFIX${end}${end}\n${end}
 public class SampleNestedExpressionCompiledTemplate extends
@@ -27,8 +28,8 @@ public class SampleNestedExpressionCompiledTemplate extends
 	@SuppressWarnings("unchecked")
 	// ${foreach list item}${foreach item.list item2}OUTER_PRFIX
 	// ${if item}${item2.property1}INNER_SUFFIX${end}${end}\n${end}
-	protected String transformCompiled(TemplateContext context) {
-		StringBuilder buffer = new StringBuilder();
+	protected Appendable transformCompiled(Appendable out,TemplateContext context) {
+		RuntimeExAppendable buffer = new RuntimeExAppendable(out);
 
 		// ${foreach list item}
 		ForEachToken token1 = new ForEachToken("list", "item", "");
@@ -95,6 +96,6 @@ public class SampleNestedExpressionCompiledTemplate extends
 			context.model.exitScope();
 			context.pop();
 		}
-		return buffer.toString();
+		return buffer;
 	}
 }

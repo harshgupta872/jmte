@@ -173,6 +173,27 @@ public final class Engine implements RendererRegistry {
 	 *            the model used to evaluate expressions inside the template
 	 * @return the expanded output
 	 */
+	public synchronized Appendable transform(Appendable out,String template, Locale locale, String sourceName, Map<String, Object> model,
+			ProcessListener processListener) {
+		return transformInternalAppendable(out,template, locale, sourceName, model, getModelAdaptor(), processListener);
+	}
+	
+	
+	/**
+	 * Transforms a template into an expanded output using the given model.
+	 * 
+	 * @param template
+	 *            the template to expand
+	 * @param locale
+	 *            the locale being passed into renderers in
+	 *            {@link TemplateContext}
+	 * @param sourceName
+	 *            the name of the current template (if there is anything like
+	 *            that)
+	 * @param model
+	 *            the model used to evaluate expressions inside the template
+	 * @return the expanded output
+	 */
 	public synchronized String transform(String template, Locale locale, String sourceName, Map<String, Object> model,
 			ProcessListener processListener) {
 		return transformInternal(template, locale, sourceName, model, getModelAdaptor(), processListener);
@@ -180,7 +201,7 @@ public final class Engine implements RendererRegistry {
 
 	public synchronized String transform(String template, String sourceName, Map<String, Object> model,
 			ProcessListener processListener) {
-		return transformInternal(template, sourceName, model, getModelAdaptor(), processListener);
+		return transformInternal(template,null, sourceName, model, getModelAdaptor(), processListener);
 	}
 
 	public synchronized String transform(String template, Locale locale, String sourceName, Map<String, Object> model) {
@@ -188,7 +209,7 @@ public final class Engine implements RendererRegistry {
 	}
 
 	public synchronized String transform(String template, String sourceName, Map<String, Object> model) {
-		return transformInternal(template, sourceName, model, getModelAdaptor(), null);
+		return transformInternal(template,null, sourceName, model, getModelAdaptor(), null);
 	}
 
 	public synchronized String transform(String template, Locale locale, Map<String, Object> model) {
@@ -196,11 +217,11 @@ public final class Engine implements RendererRegistry {
 	}
 
 	public synchronized String transform(String template, Map<String, Object> model) {
-		return transformInternal(template, null, model, getModelAdaptor(), null);
+		return transformInternal(template,null, null, model, getModelAdaptor(), null);
 	}
 
 	public synchronized String transform(String template, Map<String, Object> model, ProcessListener processListener) {
-		return transformInternal(template, null, model, getModelAdaptor(), processListener);
+		return transformInternal(template,null, null, model, getModelAdaptor(), processListener);
 	}
 
 	public synchronized String transform(String template, Locale locale, Map<String, Object> model,
@@ -208,17 +229,20 @@ public final class Engine implements RendererRegistry {
 		return transformInternal(template, locale, null, model, getModelAdaptor(), processListener);
 	}
 
-	String transformInternal(String template, String sourceName, Map<String, Object> model, ModelAdaptor modelAdaptor,
-			ProcessListener processListener) {
-		Locale locale = Locale.getDefault();
-		return transformInternal(template, locale, sourceName, model, modelAdaptor, processListener);
+	Appendable transformInternalAppendable(Appendable out,String template, Locale locale, String sourceName, Map<String, Object> model,
+			ModelAdaptor modelAdaptor, ProcessListener processListener) {
+		if (locale==null){
+			locale = Locale.getDefault();
+		}
+		Template templateImpl = getTemplate(template, sourceName);
+		return templateImpl.transformAppendable(out,model, locale, modelAdaptor, processListener);
 	}
+
 
 	String transformInternal(String template, Locale locale, String sourceName, Map<String, Object> model,
 			ModelAdaptor modelAdaptor, ProcessListener processListener) {
-		Template templateImpl = getTemplate(template, sourceName);
-		String output = templateImpl.transform(model, locale, modelAdaptor, processListener);
-		return output;
+		StringBuilder out= new StringBuilder();
+		return transformInternalAppendable(out,template,locale,sourceName,model,modelAdaptor,processListener).toString();
 	}
 
 	/**
@@ -243,7 +267,7 @@ public final class Engine implements RendererRegistry {
 
 		};
 
-		String output = transformInternal(pattern, null, model, modelAdaptor, null);
+		String output = transformInternal(pattern,null, null, model, modelAdaptor, null);
 		return output;
 	}
 

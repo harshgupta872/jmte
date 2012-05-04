@@ -33,6 +33,9 @@ public abstract class AbstractTemplate implements Template {
 	/**
 	 * Transforms a template into an expanded output using the given model.
 	 * 
+	 * @param out
+	 *           any appendable output (StringBuffer, StringWriter, Writer....)
+	 *           @see java.lang.Appendable
 	 * @param model
 	 *            the model used to evaluate expressions inside the template
 	 * @param modelAdaptor
@@ -40,9 +43,27 @@ public abstract class AbstractTemplate implements Template {
 	 *            model
 	 * @return the expanded output
 	 */
-	public abstract String transform(Map<String, Object> model, Locale locale,
+	public abstract Appendable transformAppendable(Appendable out,Map<String, Object> model, Locale locale,
 			ModelAdaptor modelAdaptor, ProcessListener processListener);
 
+	/**
+	 * Transforms a template into an expanded output using the given model.
+	 * 
+	 * @param model
+	 *            the model used to evaluate expressions inside the template
+	 * @param modelAdaptor
+	 *            adaptor used for this transformation to look up values from
+	 *            model
+	 * @return the expanded output
+	 */	
+	public final String transform(Map<String, Object> model, Locale locale,
+			ModelAdaptor modelAdaptor,ProcessListener processListener) {
+		StringBuilder output = new StringBuilder();
+		transformAppendable(output,model, locale, engine.getModelAdaptor(), processListener);
+		return output.toString();
+	}
+	
+	
 	/**
 	 * Transforms a template into an expanded output using the given model.
 	 * 
