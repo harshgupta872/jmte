@@ -29,7 +29,7 @@ public abstract class AbstractCompiledTemplate extends AbstractTemplate {
 	@Override
 	public synchronized Appendable transformAppendable(Appendable out,Map<String, Object> model, Locale locale, ModelAdaptor modelAdaptor, ProcessListener processListener) {
 		TemplateContext context = new TemplateContext(template, locale, sourceName,
-				new ScopedMap(model), modelAdaptor, engine, engine.getErrorHandler(), processListener);
+				new ScopedMap(model), modelAdaptor, engine, engine.getErrorHandler(), processListener,out);
 		return transformCompiled(out,context);
 
 	}

@@ -148,7 +148,7 @@ public final class Engine implements RendererRegistry {
 	 */
 	public boolean variablesAvailable(Map<String, Object> model, String... vars) {
 		final TemplateContext context = new TemplateContext(null, null, null, new ScopedMap(model), modelAdaptor, this,
-				new SilentErrorHandler(), null);
+				new SilentErrorHandler(), null,null);
 		for (String var : vars) {
 			final IfToken token = new IfToken(var, false);
 			if (!(Boolean) token.evaluate(context)) {

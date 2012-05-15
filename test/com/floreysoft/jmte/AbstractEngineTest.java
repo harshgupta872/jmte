@@ -1168,4 +1168,30 @@ public abstract class AbstractEngineTest {
 				model);
 		assertEquals("back\\slash for all: Hello \\ world!", output);
 	}
+	
+	@Test
+	public void appendableAnnotationProcessor() throws Exception {
+		String input = "Text before ${@append} text after";
+		Engine engine = newEngine();
+		engine.registerAnnotationProcessor(new AnnotationProcessor<String>() {
+
+			@Override
+			public String eval(AnnotationToken token, TemplateContext context) {
+				// NOTE: always check if Appendable is available - on some evaluation
+				//       stages it can be null!
+				if (context.out!=null){
+					context.out.append("MY APPENDED DATA");
+				} 
+				return null;
+			}
+
+			@Override
+			public String getType() {
+				return "append";
+			}
+		});
+		String output = engine.transform(input, DEFAULT_MODEL);
+		assertEquals("Text before MY APPENDED DATA text after", output);
+	}
+	
 }

@@ -6,6 +6,7 @@ import java.util.Locale;
 
 import com.floreysoft.jmte.ProcessListener.Action;
 import com.floreysoft.jmte.token.Token;
+import com.floreysoft.jmte.util.RuntimeExAppendable;
 
 /**
  * Holds the combined current state of a template during evaluation.
@@ -27,9 +28,10 @@ public class TemplateContext {
 	public final Locale locale;
 	public final ErrorHandler errorHandler;
 	final ProcessListener processListener;
+	public RuntimeExAppendable out;
 
 	public TemplateContext(String template, Locale locale, String sourceName, ScopedMap model,
-			ModelAdaptor modelAdaptor, Engine engine, ErrorHandler errorHandler, ProcessListener processListener) {
+			ModelAdaptor modelAdaptor, Engine engine, ErrorHandler errorHandler, ProcessListener processListener,Appendable out) {
 		this.model = model;
 		this.template = template;
 		this.locale = locale;
@@ -39,6 +41,7 @@ public class TemplateContext {
 		this.modelAdaptor = modelAdaptor;
 		this.errorHandler = errorHandler;
 		this.processListener = processListener;
+		this.out = new RuntimeExAppendable(out);
 	}
 
 	/**

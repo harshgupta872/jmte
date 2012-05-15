@@ -82,7 +82,7 @@ public class InterpretedTemplate extends AbstractTemplate {
 		};
 		final Locale locale = Locale.getDefault();
 		context = new TemplateContext(template, locale, sourceName, scopedMap,
-				new DefaultModelAdaptor(), engine, engine.getErrorHandler(), processListener);
+				new DefaultModelAdaptor(), engine, engine.getErrorHandler(), processListener,null);
 		output = new RuntimeExAppendable(new StringBuilder());
 		transformPure(context);
 		output = null;
@@ -94,7 +94,7 @@ public class InterpretedTemplate extends AbstractTemplate {
 			ModelAdaptor modelAdaptor, ProcessListener processListener) {
 		try {
 			context = new TemplateContext(template, locale, sourceName, new ScopedMap(
-					model), modelAdaptor, engine, engine.getErrorHandler(), processListener);
+					model), modelAdaptor, engine, engine.getErrorHandler(), processListener,out);
 			output = new RuntimeExAppendable(out);
 			transformPure(context);
 			return out; // out is same instance as output
